@@ -1,0 +1,36 @@
+{
+  "name": "qb-json-stream",
+  "version": "1.0.0",
+  "description": "qb-json-stream",
+  "homepage": "https://github.com/quicbit-js/qb-json-stream",
+  "url": "https://github.com/quicbit-js/qb-json-stream/issues",
+  "email": "support@quicbit.com",
+  "repository": "quicbit-js/qb-json-stream",
+  "dependencies": {
+    "qb-json-tokenizer": "file:../qb-json-tokenizer"
+  },
+  "devDependencies": {
+    "tape": "^4.9.1",
+    "test-kit": "^2.9.1"
+  },
+  "scripts": {
+    "test": "tape test.js",
+    "cov": "tap --coverage-report=html test.js"
+  },
+  "keywords": [
+    "fast",
+    "compact",
+    "minimal",
+    "qb",
+    "qb1",
+    "quicbit",
+    "data",
+    "performance"
+  ],
+  "files": [
+    "index.js",
+    "test.js"
+  ],
+  "author": "Matthew Voss",
+  "license": "ISC"
+}
