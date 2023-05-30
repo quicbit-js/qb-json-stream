@@ -1,6 +1,6 @@
 {
   "name": "qb-json-stream",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "qb-json-stream",
   "homepage": "https://github.com/quicbit-js/qb-json-stream",
   "url": "https://github.com/quicbit-js/qb-json-stream/issues",
@@ -29,6 +29,7 @@
   ],
   "files": [
     "index.js",
+    "jpath.js",
     "test.js"
   ],
   "author": "Matthew Voss",
