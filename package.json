@@ -7,7 +7,7 @@
   "email": "support@quicbit.com",
   "repository": "quicbit-js/qb-json-stream",
   "dependencies": {
-    "qb-json-tokenizer": "file:../qb-json-tokenizer"
+    "qb-json-tokenizer": "^1.0.0"
   },
   "devDependencies": {
     "tape": "^4.9.1",
