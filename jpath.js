@@ -33,7 +33,7 @@ function set_value (parent, path, val) {
         let nk = keyfor(path[i+1])
         if (cur[k] == null) {
             cur[k] = (typeof nk === 'number' ? [] : {})
-        } else {
+            } else {
           check_parent_type(cur[k], nk, path)
         }
         cur = cur[k]
