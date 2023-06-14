@@ -17,7 +17,7 @@
 var test = require('test-kit').tape()
 var jpath = require('./jpath')
 
-test('set_value', function (t) {
+test('jpath set_value', function (t) {
     t.table_assert([
         [ 'parent',               'path',  'val', 'exp' ],
         [ null,                   '0',     'x',   [ 'x' ] ],
@@ -35,7 +35,7 @@ test('set_value', function (t) {
     )
 })
 
-test('errors',          function (t) {
+test('jpath errors',          function (t) {
     t.table_assert([
         [ 'parent',               'path',  'val', 'exp' ],
         [ {a:33},                 'a/b/c', 'x',   /expected parent of b in \"a\/b\/c\" to be type object, but got number \(33\)/ ],
