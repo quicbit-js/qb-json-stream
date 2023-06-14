@@ -39,13 +39,17 @@ class Json2Object extends Transform {
     })
   }
 
+  // Add as many of these chained interim transformers as desired, they receive the stateful json tokenizer and return it 
+  // or return null to filter out / skip tokens.
   pipe2obj(trans) {
     typeof trans.obj2obj === 'function' || err(`expected trans.obj2obj to be a function, not "${typeof trans.obj2obj}"`)
     this.obj2obj_transforms.push(trans)
     return this
   }
 
+  // Set only once, this transform converts processed output back to bytestreams as the output of the Json2Object transformer. 
   pipe2bytes(trans) {
+    this.obj2bytes_transform == null || err(`pipe2bytes transform is already set`)
     typeof trans.obj2bytes === 'function' || err(`expected trans.obj2bytes to be a function, not "${typeof trans.obj2bytes}"`)
     this.obj2bytes_transform = trans
     return this
@@ -72,7 +76,7 @@ function hasmatch(expressions, s) {
  * requires synchronous usage (not standard pipes)
  */
 class FilterLeaves {
-  constructor(opt = {}) {
+  constructor(opt) {
     this.include = (opt.include || []).map((s) => wildcard_re(s))
     this.exclude = (opt.exclude || []).map((s) => wildcard_re(s))
     this.maxdepth = opt.maxdepth || 0
@@ -137,7 +141,7 @@ class NL2Obj extends Transform {
   }
 
   _transform(chunk, _enc, cb) {
-    if (chunk === null) {
+    if (chunk == null) {
       this.push(null)
       cb()
       return
@@ -236,24 +240,6 @@ function objstats_trans(opt = {}) {
   return ret
 }
 
-function objstats_write(opt = {}) {
-  let write_when_done = opt.write_when_done === undefined ? true : !!opt.write_when_done
-  let stats = new ObjStats()
-  ret = new Transform({
-    objectMode: true,
-    highWaterMark: true,
-    write(obj, _enc, cb) {
-      stats.update(obj)
-      cb(null, obj)
-    }
-  })
-  ret.stats = stats
-  if (write_when_done) {
-    ret.on('finish', () => process.stderr.write(`stream ended. stats: ${JSON.stringify(stats.report(), null, '  ')}\n`))
-  }
-  return ret
-}
-
 function obj2json() {
   return Transform({
     writableObjectMode: true,
@@ -303,18 +289,36 @@ class PathObj2Obj extends Transform {
   }
 }
 
+function collect (done_cb) {
+  const all_chunks = []
+  const ret = new Writable ({
+    objectMode: true,
+    highWaterMark: 1,
+    write(chunk, _enc, cb) {
+      if (chunk != null) {
+        all_chunks.push(chunk)
+      }
+      cb()
+    }
+  })
+  ret.on('finish', () => done_cb(all_chunks))
+  return ret
+}
+
 module.exports = {
-  json2obj: (opt) => new Json2Object(opt),        // bytes in, object out with following subfilter options:
+  json2obj: (opt) => new Json2Object(opt),            // bytes in, object out with following subfilter options:
 
   filterLeaves: (opt) => new FilterLeaves(opt),           // tokenizer in, tokenizer out
   leaves2type: (opt) => new Leaves2Type(opt),             // tokenizer in, string out
   leaves2json: (opt) => new Leaves2Json(opt),             // tokenizer in, buffer out (NLJSON)
-  pathobj2obj: (prefix_expr) => new PathObj2Obj(prefix_expr),   // buffer in (NLJSON), object out
 
-  // generic streams
-  objstats_trans: objstats_trans,                 // object in, object out
-  objstats_write: objstats_write,                 // object in
-  obj2json: obj2json,                             // object in, NLJSON out
+  // generic streams                      
+                                                      // buffer in (NLJSON), object out
+  pathobj2obj: (prefix_expr) => new PathObj2Obj(prefix_expr),   
+                                                      
+  objstats_trans: objstats_trans,                     // object in, object out
+  obj2json: obj2json,                                 // object in, NLJSON out
   splitlines: (opt) => new NL2Obj(false, opt),        // buffer in (NL), string out
   nljson2obj: (opt) => new NL2Obj(true, opt),         // buffer in (NLJSON), object out
+  collect: collect,                                   // <any> in, cb at finish with array of all chunks (handy for testing)
 }
